@@ -12,12 +12,12 @@
       to the variables and constraints of the problem. The assigned variables
       can be accessed via methods, the values assigned can also be accessed.
 
-      newly_instaniated_variable is an optional argument.
+      newly_instantiated_variable is an optional argument.
       if newly_instantiated_variable is not None:
           then newly_instantiated_variable is the most
            recently assigned variable of the search.
       else:
-          progator is called before any assignments are made
+          propagator is called before any assignments are made
           in which case it must decide what processing to do
            prior to any variables being assigned. SEE BELOW
 
@@ -60,7 +60,7 @@
          for gac we initialize the GAC queue with all constraints containing V.
 
 
-var_ordering == a function with the following template
+    var_ordering == a function with the following template
     var_ordering(csp)
         ==> returns Variable
 
@@ -94,7 +94,38 @@ def prop_FC(csp, newVar=None):
     """Do forward checking. That is check constraints with
        only one uninstantiated variable. Remember to keep
        track of all pruned variable,value pairs and return """
-    # IMPLEMENT
+    # return true if csp is satisfied
+    if len(csp.get_all_unasgn_vars()) == 0:
+        return True, []
+
+    if newVar is None:  # check all unary constraints
+        cons = csp.get_all_cons()
+    else:  # check all constraints with newVar
+        cons = csp.get_cons_with_var(newVar)
+
+    all_pruned = []
+    for c in cons:
+        if c.get_n_unasgn() == 1:  # unassigned variable x
+            var_x = c.get_unasgn_vars()[0]
+            passed, pruned = forward_check(c, var_x)
+            all_pruned.extend(pruned)
+            if not passed:
+                return False, all_pruned
+
+    return True, all_pruned
+
+
+def forward_check(con, var):
+    """Return True if a value assignment of v satisfies c, else return False."""
+    pruned = []
+    for val in var.cur_domain():
+        if not con.has_support(var, val):
+            var.prune_value(val)
+            pruned.append(val)
+        if var.cur_domain_size() == 0:
+            return False, pruned
+
+    return True, pruned
 
 
 def prop_GAC(csp, newVar=None):
@@ -106,4 +137,14 @@ def prop_GAC(csp, newVar=None):
 
 def ord_mrv(csp):
     """ return variable according to the Minimum Remaining Values heuristic """
-    # IMPLEMENT
+    min = float("inf")
+    mrv = None
+    vars = csp.get_all_unasgn_vars()  # list of all unassigned variables
+
+    for var in vars:
+        if var.cur_domain_size() < min:
+            min = var.cur_domain_size()
+            mrv = var
+
+    return mrv
+
