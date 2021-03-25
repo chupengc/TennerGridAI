@@ -228,13 +228,24 @@ def tenner_csp_model_2(initial_tenner_board):
     # n-nary non-equal constraints
     for i in range(n):
         scope = []
-        cell_values = []
+        set_values = {}  # dictionary of index, value pairs
         for j in range(10):
+            value = n_grid[i][j]
             scope.append(var_array[i][j])
-            if n_grid[i][j] != -1:
-                cell_values.append(n_grid[i][j])
-            
-
+            if value != -1:  # value is pre-set
+                set_values[j] = value
+        cons = Constraint("row" + str(n), scope)
+        tuples = []
+        for tuple in list(itertools.permutations(range(10))):
+            sarisfied = True
+            for index in set_values:
+                if tuple[index] != set_values[index]:
+                    sarisfied = False
+                    break
+            if sarisfied:
+                tuples.append(tuple)
+        cons.add_satisfying_tuples(tuples)
+        csp.add_constraint(cons)
 
     # binary contiguous constraints
     for i in range(9):
