@@ -71,22 +71,19 @@ def tenner_csp_model_1(initial_tenner_board):
 
     csp = CSP("tenner_csp")
 
-    vars = []
     var_array = []
     for i in range(n):
-        row_i = n_grid[i]
         vars_i = []
         for j in range(10):
-            cell = row_i[j]
+            cell = n_grid[i][j]
             name = str(i) + str(j)
             if cell != -1:
                 var = Variable(name, [cell])
             else:
                 var = Variable(name, domain)
             vars_i.append(var)
-
+            csp.add_var(var)
         var_array.append(vars_i)
-        vars.extend(vars_i)
 
     # binary non-equal constraints
     for row in var_array:
@@ -208,5 +205,94 @@ def tenner_csp_model_2(initial_tenner_board):
        a single value in their domain). model_2 should create these
        all-different constraints between the relevant variables.
     """
+    n_grid, last_row = initial_tenner_board[0], initial_tenner_board[1]
+    n = len(n_grid)
+    domain = [num for num in range(10)]
 
-    return None, None
+    csp = CSP("tenner_csp")
+
+    var_array = []
+    for i in range(n):
+        vars_i = []
+        for j in range(10):
+            cell = n_grid[i][j]
+            name = str(i) + str(j)
+            if cell != -1:
+                var = Variable(name, [cell])
+            else:
+                var = Variable(name, domain)
+            vars_i.append(var)
+            csp.add_var(var)
+        var_array.append(vars_i)
+
+    # n-nary non-equal constraints
+    for i in range(n):
+        scope = []
+        cell_values = []
+        for j in range(10):
+            scope.append(var_array[i][j])
+            if n_grid[i][j] != -1:
+                cell_values.append(n_grid[i][j])
+            
+
+
+    # binary contiguous constraints
+    for i in range(9):
+        for j in range(n):
+            if j < n - 1:  # rows 0 to n-2
+                var = var_array[j][i]
+                var_right = var_array[j][i + 1]
+                var_down = var_array[j + 1][i]
+                var_diag = var_array[j + 1][i + 1]
+                cons_right = Constraint("right", [var, var_right])
+                cons_down = Constraint("down", [var, var_down])
+                cons_diag = Constraint("diagonal", [var, var_diag])
+                all_tuples = []
+                for var2 in [var_right, var_down, var_diag]:
+                    tuples = []
+                    for val1 in var.cur_domain():
+                        for val2 in var2.cur_domain():
+                            if val1 != val2:
+                                tuples.append((val1, val2))
+                    all_tuples.append(tuples)
+                cons_right.add_satisfying_tuples(all_tuples[0])
+                cons_down.add_satisfying_tuples(all_tuples[1])
+                cons_diag.add_satisfying_tuples(all_tuples[2])
+                for cons in [cons_right, cons_down, cons_diag]:
+                    csp.add_constraint(cons)
+
+            else:  # row n-1 (last row)
+                var = var_array[j][i]
+                var_right = var_array[j][i + 1]
+                cons_right = Constraint("right", [var, var_right])
+                tuples = []
+                for val1 in var.cur_domain():
+                    for val2 in var_right.cur_domain():
+                        if val1 != val2:
+                            tuples.append((val1, val2))
+                cons_right.add_satisfying_tuples(tuples)
+                csp.add_constraint(cons_right)
+
+    # n-nary sum constraints
+    for i in range(10):
+        target = last_row[i]
+        name = str(i) + ": " + str(target)
+        scope = []
+        domains = []
+        for j in range(n):
+            var = var_array[j][i]
+            scope.append(var)
+            domains.append(var.cur_domain())
+        cons = Constraint(name, scope)
+        tuples = []
+        pad_num = (8 - len(domains)) * [[0]]
+        domains.extend(pad_num)  # pad curr_domain to 8 (maximum n = 8)
+        for tuple in list(itertools.product(domains[0], domains[1], domains[2],
+                                            domains[3], domains[4], domains[5],
+                                            domains[6], domains[7])):
+            if sum(tuple) == target:
+                tuples.append(tuple[:n])
+        cons.add_satisfying_tuples(tuples)
+        csp.add_constraint(cons)
+
+    return csp, var_array
