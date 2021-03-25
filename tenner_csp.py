@@ -105,6 +105,43 @@ def tenner_csp_model_1(initial_tenner_board):
                 cons.add_satisfying_tuples(tuples)
                 csp.add_constraint(cons)
 
+    # binary contiguous constraints
+    for i in range(9):
+        for j in range(n):
+            if j < n - 1:  # rows 0 to n-2
+                var = var_array[j][i]
+                var_right = var_array[j][i + 1]
+                var_down = var_array[j + 1][i]
+                var_diag = var_array[j + 1][i + 1]
+                cons_right = Constraint("right", [var, var_right])
+                cons_down = Constraint("down", [var, var_down])
+                cons_diag = Constraint("diagonal", [var, var_diag])
+                all_tuples = []
+                for var2 in [var_right, var_down, var_diag]:
+                    tuples = []
+                    for val1 in var.cur_domain():
+                        for val2 in var2.cur_domain():
+                            if val1 != val2:
+                                tuples.append((val1, val2))
+                    all_tuples.append(tuples)
+                cons_right.add_satisfying_tuples(all_tuples[0])
+                cons_down.add_satisfying_tuples(all_tuples[1])
+                cons_diag.add_satisfying_tuples(all_tuples[2])
+                for cons in [cons_right, cons_down, cons_diag]:
+                    csp.add_constraint(cons)
+
+            else:  # row n-1 (last row)
+                var = var_array[j][i]
+                var_right = var_array[j][i + 1]
+                cons_right = Constraint("right", [var, var_right])
+                tuples = []
+                for val1 in var.cur_domain():
+                    for val2 in var_right.cur_domain():
+                        if val1 != val2:
+                            tuples.append((val1, val2))
+                cons_right.add_satisfying_tuples(tuples)
+                csp.add_constraint(cons_right)
+
     # n-nary sum constraints
     for i in range(10):
         target = last_row[i]
@@ -162,15 +199,14 @@ def tenner_csp_model_2(initial_tenner_board):
        has a fixed number i at that cell.
 
        However, model_2 has different constraints. In particular, instead
-       of binary non-equals constaints model_2 has a combination of n-nary
+       of binary non-equals constraints model_2 has a combination of n-nary
        all-different constraints: all-different constraints for the variables in
        each row, and sum constraints for each column. You may use binary
-       contstraints to encode contiguous cells (including diagonally contiguous
+       constraints to encode contiguous cells (including diagonally contiguous
        cells), however. Each -ary constraint is over more
        than two variables (some of these variables will have
        a single value in their domain). model_2 should create these
        all-different constraints between the relevant variables.
     """
 
-    # IMPLEMENT
-    return None, None  # CHANGE THIS
+    return None, None
