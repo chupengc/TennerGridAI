@@ -37,7 +37,7 @@ b2_sol = ([[1, 2, 4, 3, 0, 9, 8, 6, 5, 7],
        [5, 8, 9, 7, 3, 4, 1, 0, 2, 6],],
       [26, 29, 40, 50, 20, 46, 26, 28, 16, 34])
 
-#Puzzle b2 does not have a unique solution! 
+#Puzzle b2 does not have a unique solution!
 b2_sol_alternative = ([[1, 2, 4, 3, 0, 9, 8, 6, 5, 7],
        [8, 6, 5, 7, 4, 3, 0, 1, 2, 9],
        [7, 2, 3, 9, 1, 6, 8, 5, 0, 4],
@@ -220,7 +220,7 @@ def three_queen_FC():
         details = "One or more runtime errors occurred while testing FC with three queens: %r" % traceback.format_exc()
 
     return score,details
-  
+
 
 def print_tenner_soln(var_array):
     for row in var_array:
@@ -241,18 +241,22 @@ if __name__ == "__main__":
         if csp != None:
             solver = BT(csp)
             print("=======================================================")
-            print("GAC")
-            solver.bt_search(prop_GAC, var_ord=ord_mrv)
+            # print("GAC")
+            # solver.bt_search(prop_GAC, var_ord=ord_mrv)
+            print("FC")
+            solver.bt_search(prop_FC, var_ord=ord_mrv)
             print("Solution")
             print_tenner_soln(var_array)
 
-        print("Using Model 2")        
+        print("Using Model 2")
         csp, var_array = tenner_csp_model_2(b)
-        if csp != None:        
+        if csp != None:
             solver = BT(csp)
             print("=======================================================")
-            print("FC")
-            solver.bt_search(prop_FC, var_ord=ord_mrv)
+            # print("FC")
+            # solver.bt_search(prop_FC, var_ord=ord_mrv)
+            print("GAC")
+            solver.bt_search(prop_GAC, var_ord=ord_mrv)
             print("Solution")
             print_tenner_soln(var_array)
 
@@ -282,4 +286,4 @@ if __name__ == "__main__":
     total += score
     print(details)
     print("---finished three_queen_GAC---\n")
-    print("Total score %d/4\n" % total)        
+    print("Total score %d/4\n" % total)

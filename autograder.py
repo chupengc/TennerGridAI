@@ -244,8 +244,10 @@ if __name__ == "__main__":
         if csp != None:
             solver = BT(csp)
             print("=======================================================")
-            print("GAC")
-            solver.bt_search(prop_GAC, var_ord=ord_mrv)
+            # print("GAC")
+            # solver.bt_search(prop_GAC, var_ord=ord_mrv)
+            print("FC")
+            solver.bt_search(prop_FC, var_ord=ord_mrv)
             print("Solution")
             print_tenner_soln(var_array)
             print_tenner_soln(var_array)
@@ -257,8 +259,10 @@ if __name__ == "__main__":
         if csp != None:
             solver = BT(csp)
             print("=======================================================")
-            print("FC")
-            solver.bt_search(prop_FC, var_ord=ord_mrv)
+            # print("FC")
+            # solver.bt_search(prop_FC, var_ord=ord_mrv)
+            print("GAC")
+            solver.bt_search(prop_GAC, var_ord=ord_mrv)
             print("Solution")
             print_tenner_soln(var_array)
         else:
