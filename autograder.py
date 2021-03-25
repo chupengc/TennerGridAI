@@ -124,7 +124,7 @@ def test_simple_FC():
         queens = nQueens(8)
         curr_vars = queens.get_all_vars()
         curr_vars[0].assign(1)
-        
+
         prop_FC(queens,newVar=curr_vars[0])
         answer = [[1],[3, 4, 5, 6, 7, 8],[2, 4, 5, 6, 7, 8],[2, 3, 5, 6, 7, 8],[2, 3, 4, 6, 7, 8],[2, 3, 4, 5, 7, 8],[2, 3, 4, 5, 6, 8],[2, 3, 4, 5, 6, 7]]
         var_domain = [x.cur_domain() for x in curr_vars]
@@ -220,7 +220,7 @@ def three_queen_FC():
         details = "One or more runtime errors occurred while testing FC with three queens: %r" % traceback.format_exc()
 
     return score,details
-  
+
 
 def print_tenner_soln(var_array):
     for row in var_array:
@@ -245,20 +245,20 @@ if __name__ == "__main__":
             solver = BT(csp)
             print("=======================================================")
             print("GAC")
-            solver.bt_search(prop_GAC)
+            solver.bt_search(prop_GAC, var_ord=ord_mrv)
             print("Solution")
             print_tenner_soln(var_array)
             print_tenner_soln(var_array)
         else:
             print("Model 1 test failed.")
 
-        print("Using Model 2")        
+        print("Using Model 2")
         csp, var_array = tenner_csp_model_2(b)
-        if csp != None:        
+        if csp != None:
             solver = BT(csp)
             print("=======================================================")
             print("FC")
-            solver.bt_search(prop_FC)
+            solver.bt_search(prop_FC, var_ord=ord_mrv)
             print("Solution")
             print_tenner_soln(var_array)
         else:
@@ -290,4 +290,4 @@ if __name__ == "__main__":
     total += score
     print(details)
     print("---finished three_queen_GAC---\n")
-    print("Total number of propagator tests passed %d/4\n" % total)        
+    print("Total number of propagator tests passed %d/4\n" % total)
