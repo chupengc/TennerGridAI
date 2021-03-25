@@ -121,7 +121,7 @@ def forward_check(con, var):
     for val in var.cur_domain():
         if not con.has_support(var, val):
             var.prune_value(val)
-            pruned.append(val)
+            pruned.append((var, val))
         if var.cur_domain_size() == 0:
             return False, pruned
 
@@ -132,7 +132,35 @@ def prop_GAC(csp, newVar=None):
     """Do GAC propagation. If newVar is None we do initial GAC enforce
        processing all constraints. Otherwise we do GAC enforce with
        constraints containing newVar on GAC Queue"""
-    # IMPLEMENT
+    # return true if csp is satisfied
+    if len(csp.get_all_unasgn_vars()) == 0:
+        return True, []
+
+    if newVar is None:
+        queue = csp.get_all_cons()  # add all constraints to queue
+    else:  # add constraints with newVar to queue
+        queue = csp.get_cons_with_var(newVar)
+
+    return GAC(csp, queue)
+
+
+def GAC(csp, queue):
+    """Return True if all constraints in the queue is GAC, else return False."""
+    pruned = []
+    while queue:
+        con = queue.pop()
+        for var in con.get_scope():
+            for val in var.cur_domain():
+                if not con.has_support(var, val):
+                    var.prune_value(val)
+                    pruned.append((var, val))
+                    if var.cur_domain_size() == 0:
+                        return False, pruned
+                    for c in csp.get_cons_with_var(var):
+                        if c not in queue:
+                            queue.append(c)
+
+    return True, pruned
 
 
 def ord_mrv(csp):
@@ -147,4 +175,3 @@ def ord_mrv(csp):
             mrv = var
 
     return mrv
-
